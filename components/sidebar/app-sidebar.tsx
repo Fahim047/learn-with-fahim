@@ -17,6 +17,7 @@ import {
   IconSearch,
   IconSettings,
   IconUsers,
+  IconStack
 } from "@tabler/icons-react";
 
 import { NavDocuments } from "@/components/sidebar/nav-documents";
@@ -47,9 +48,9 @@ const data = {
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
+      title: "Courses",
+      url: "/admin/courses",
+      icon: IconStack,
     },
     {
       title: "Analytics",

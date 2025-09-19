@@ -6,7 +6,7 @@ import VerificationEmail from "@/components/emails/verification-email";
 import env from "./env";
 import PasswordResetEmail from "@/components/emails/reset-email";
 import { resend } from "./resend";
-
+import { admin } from "better-auth/plugins";
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg", // or "mysql", "sqlite"
@@ -51,5 +51,5 @@ export const auth = betterAuth({
     },
     sendOnSignUp: true,
   },
-  plugins: [nextCookies()],
+  plugins: [admin(), nextCookies()],
 });
