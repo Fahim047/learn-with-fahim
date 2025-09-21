@@ -87,19 +87,26 @@ export default function EditCourseContent({
 
       setItems(newItems);
 
-      // Call server action
-      const result = await reorderChapters(
-        data.id,
-        newItems.map(({ id, order }) => ({ id, order }))
+      toast.promise(
+        reorderChapters(
+          data.id,
+          newItems.map(({ id, order }) => ({ id, order }))
+        ),
+        {
+          loading: "Updating chapter order...",
+          success: (result) => {
+            if (!result.success) {
+              setItems(prevItems); // rollback
+              throw new Error(result.error || "Failed to update chapter order");
+            }
+            return "Chapter order updated";
+          },
+          error: (err) => {
+            setItems(prevItems); // rollback
+            return err.message || "Failed to update chapter order";
+          },
+        }
       );
-
-      if (!result.success) {
-        setItems(prevItems); // rollback
-        toast.error(result.error || "Failed to update chapter order");
-        return;
-      }
-
-      toast.success("Chapter order updated");
     }
 
     // Reorder lessons
@@ -129,19 +136,27 @@ export default function EditCourseContent({
 
       const updatedChapter = newItems.find((c) => c.id === activeChapterId)!;
 
-      const result = await reorderChapterLessons(
-        data.id,
-        activeChapterId,
-        updatedChapter.lessons.map(({ id, order }) => ({ id, order }))
+      toast.promise(
+        reorderChapterLessons(
+          data.id,
+          activeChapterId,
+          updatedChapter.lessons.map(({ id, order }) => ({ id, order }))
+        ),
+        {
+          loading: "Updating lesson order...",
+          success: (result) => {
+            if (!result.success) {
+              setItems(prevItems); // rollback
+              throw new Error(result.error || "Failed to update lesson order");
+            }
+            return "Lesson order updated";
+          },
+          error: (err) => {
+            setItems(prevItems); // rollback
+            return err.message || "Failed to update lesson order";
+          },
+        }
       );
-
-      if (!result.success) {
-        setItems(prevItems); // rollback
-        toast.error(result.error || "Failed to update lesson order");
-        return;
-      }
-
-      toast.success("Lesson order updated");
     }
   }
 
