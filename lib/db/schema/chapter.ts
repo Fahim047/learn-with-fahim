@@ -6,7 +6,7 @@ import { lessons } from "./lesson";
 export const chapters = pgTable("chapters", {
   id: uuid().primaryKey().defaultRandom(),
   title: text().notNull(),
-  position: integer().notNull(),
+  order: integer().notNull(),
   courseId: uuid()
     .notNull()
     .references(() => courses.id),

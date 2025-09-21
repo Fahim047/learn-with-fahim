@@ -8,3 +8,10 @@ export enum CourseLevel {
   INTERMEDIATE = "intermediate",
   ADVANCED = "advanced",
 }
+
+export interface APIResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+}

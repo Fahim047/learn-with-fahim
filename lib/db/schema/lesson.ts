@@ -8,7 +8,7 @@ export const lessons = pgTable("lessons", {
   description: text(),
   thumbnailKey: text(),
   videoKey: text(),
-  position: integer().notNull(),
+  order: integer().notNull(),
   chapterId: uuid()
     .notNull()
     .references(() => chapters.id),

@@ -18,8 +18,8 @@ import {
 import { useState } from "react";
 import SortableItem from "./_components/sortable-item";
 import { AdminCourseEditType } from "@/data/admin/admin-get-course";
-import { Collapsible } from "@radix-ui/react-collapsible";
 import {
+  Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
@@ -33,6 +33,8 @@ import {
   VideoIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { reorderChapterLessons, reorderChapters } from "@/actions/courses";
 
 export default function EditCourseContent({
   data,
@@ -43,34 +45,106 @@ export default function EditCourseContent({
     data.chapters.map((chapter) => ({
       id: chapter.id,
       title: chapter.title,
-      position: chapter.position,
+      order: chapter.order,
       isOpen: true,
       lessons: chapter.lessons.map((lesson) => ({
         id: lesson.id,
         title: lesson.title,
-        position: lesson.position,
+        order: lesson.order,
       })),
     })) || [];
+
   const [items, setItems] = useState(initialItems);
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-  function handleDragEnd(event: DragEndEvent) {
+
+  async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    if (!over) return;
+    if (!over || active.id === over.id) return;
 
-    if (active.id !== over.id) {
-      setItems((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
+    const activeType = active.data.current?.type as "chapter" | "lesson";
+    const overType = over.data.current?.type as "chapter" | "lesson";
 
-        return arrayMove(items, oldIndex, newIndex);
+    const prevItems = structuredClone(items); // save current state
+    let newItems = [...items];
+
+    // Reorder chapters
+    if (activeType === "chapter" && overType === "chapter") {
+      const oldIndex = newItems.findIndex((c) => c.id === active.id);
+      const newIndex = newItems.findIndex((c) => c.id === over.id);
+
+      newItems = arrayMove(newItems, oldIndex, newIndex).map(
+        (chapter, idx) => ({
+          ...chapter,
+          order: idx + 1,
+        })
+      );
+
+      setItems(newItems);
+
+      // Call server action
+      const result = await reorderChapters(
+        data.id,
+        newItems.map(({ id, order }) => ({ id, order }))
+      );
+
+      if (!result.success) {
+        setItems(prevItems); // rollback
+        toast.error(result.error || "Failed to update chapter order");
+        return;
+      }
+
+      toast.success("Chapter order updated");
+    }
+
+    // Reorder lessons
+    if (activeType === "lesson" && overType === "lesson") {
+      const activeChapterId = active.data.current?.chapterId;
+      const overChapterId = over.data.current?.chapterId;
+      if (activeChapterId !== overChapterId) return; // prevent cross-chapter reorder
+
+      newItems = newItems.map((chapter) => {
+        if (chapter.id !== activeChapterId) return chapter;
+
+        const oldIndex = chapter.lessons.findIndex((l) => l.id === active.id);
+        const newIndex = chapter.lessons.findIndex((l) => l.id === over.id);
+
+        const reorderedLessons = arrayMove(chapter.lessons, oldIndex, newIndex);
+
+        return {
+          ...chapter,
+          lessons: reorderedLessons.map((lesson, idx) => ({
+            ...lesson,
+            order: idx + 1,
+          })),
+        };
       });
+
+      setItems(newItems);
+
+      const updatedChapter = newItems.find((c) => c.id === activeChapterId)!;
+
+      const result = await reorderChapterLessons(
+        data.id,
+        activeChapterId,
+        updatedChapter.lessons.map(({ id, order }) => ({ id, order }))
+      );
+
+      if (!result.success) {
+        setItems(prevItems); // rollback
+        toast.error(result.error || "Failed to update lesson order");
+        return;
+      }
+
+      toast.success("Lesson order updated");
     }
   }
+
   function handleToggle(id: string) {
     setItems((items) =>
       items.map((item) =>
@@ -78,6 +152,7 @@ export default function EditCourseContent({
       )
     );
   }
+
   return (
     <DndContext
       sensors={sensors}
@@ -135,7 +210,6 @@ export default function EditCourseContent({
                         </div>
                       </CollapsibleTrigger>
 
-                      {/* Lessons list */}
                       <CollapsibleContent className="pl-6">
                         <SortableContext
                           strategy={verticalListSortingStrategy}

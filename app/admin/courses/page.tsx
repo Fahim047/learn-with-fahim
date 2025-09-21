@@ -10,7 +10,7 @@ export default async function AdminCoursesPage() {
   if (error) {
     return (
       <div className="h-screen flex items-center justify-center">
-        <p>{error.message}</p>
+        <p>Something went wrong. Try again later...</p>
       </div>
     );
   }
