@@ -15,7 +15,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SortableItem from "./_components/sortable-item";
 import { AdminCourseEditType } from "@/data/admin/admin-get-course";
 import {
@@ -35,33 +35,39 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { reorderChapterLessons, reorderChapters } from "@/actions/courses";
+import NewChapterModal from "./_components/new-chapter-modal";
 
 export default function EditCourseContent({
   data,
 }: {
   data: AdminCourseEditType;
 }) {
-  const initialItems =
-    data.chapters.map((chapter) => ({
-      id: chapter.id,
-      title: chapter.title,
-      order: chapter.order,
-      isOpen: true,
-      lessons: chapter.lessons.map((lesson) => ({
-        id: lesson.id,
-        title: lesson.title,
-        order: lesson.order,
-      })),
-    })) || [];
-
-  const [items, setItems] = useState(initialItems);
-
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+  const initialItems = useMemo(() => {
+    return (
+      data.chapters.map((chapter) => ({
+        id: chapter.id,
+        title: chapter.title,
+        order: chapter.order,
+        isOpen: true,
+        lessons: chapter.lessons.map((lesson) => ({
+          id: lesson.id,
+          title: lesson.title,
+          order: lesson.order,
+        })),
+      })) || []
+    );
+  }, [data]);
+
+  const [items, setItems] = useState(initialItems);
+  useEffect(() => {
+    setItems(initialItems);
+  }, [data]);
 
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -175,8 +181,9 @@ export default function EditCourseContent({
       onDragEnd={handleDragEnd}
     >
       <Card>
-        <CardHeader>
+        <CardHeader className="flex justify-between items-center">
           <CardTitle>Chapters</CardTitle>
+          <NewChapterModal courseId={data.id} />
         </CardHeader>
         <CardContent>
           <SortableContext strategy={verticalListSortingStrategy} items={items}>

@@ -44,4 +44,14 @@ export const courseCreateSchema = z.object({
     error: "Status is required",
   }),
 });
+
+export const chapterCreateSchema = z.object({
+  title: z.string().min(3, {
+    error: "Chapter title must be at least 3 characters long",
+  }),
+  courseId: z.uuid({
+    error: "Invalid course ID",
+  }),
+});
 export type CourseCreateSchema = z.infer<typeof courseCreateSchema>;
+export type ChapterCreateSchema = z.infer<typeof chapterCreateSchema>;

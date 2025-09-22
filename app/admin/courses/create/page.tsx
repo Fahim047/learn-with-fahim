@@ -77,11 +77,11 @@ export default function CreateCoursePage() {
     mode: "onChange",
   });
   const onSubmit = (values: CourseCreateSchema) => {
-    console.log(values);
     startTransition(async () => {
       const { data: result, error } = await tryCatch(createCourse(values));
       if (error) {
         toast.error("Failed to create course");
+        return;
       }
       if (result?.success) {
         toast.success(result.message);

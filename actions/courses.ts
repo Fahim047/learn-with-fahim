@@ -2,9 +2,12 @@
 
 import db from "@/lib/db";
 import { chapters, courses, lessons } from "@/lib/db/schema";
-import { courseCreateSchema } from "@/lib/zod-schemas";
-import type { CourseCreateSchema } from "@/lib/zod-schemas";
-import { and, eq } from "drizzle-orm";
+import { chapterCreateSchema, courseCreateSchema } from "@/lib/zod-schemas";
+import type {
+  ChapterCreateSchema,
+  CourseCreateSchema,
+} from "@/lib/zod-schemas";
+import { and, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 export async function createCourse(data: CourseCreateSchema) {
   try {
@@ -135,6 +138,38 @@ export async function reorderChapterLessons(
     return {
       success: false,
       error: "Failed to reorder chapter lessons",
+    };
+  }
+}
+export async function createChapter(data: ChapterCreateSchema) {
+  try {
+    const validation = chapterCreateSchema.safeParse(data);
+    if (!validation.success) {
+      return {
+        success: false,
+        error: "Invalid chapter data",
+      };
+    }
+    await db.transaction(async (tx) => {
+      const chapterOfMaxOrder = await tx.query.chapters.findFirst({
+        where: eq(chapters.courseId, data.courseId),
+        orderBy: desc(chapters.order),
+      });
+
+      await tx.insert(chapters).values({
+        ...data,
+        order: (chapterOfMaxOrder?.order ?? 1) + 1,
+      });
+    });
+    revalidatePath(`/admin/courses/${data.courseId}/edit`);
+    return {
+      success: true,
+      message: "Chapter created successfully",
+    };
+  } catch {
+    return {
+      success: false,
+      error: "Failed to create chapter",
     };
   }
 }
