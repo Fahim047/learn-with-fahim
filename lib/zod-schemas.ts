@@ -53,5 +53,36 @@ export const chapterCreateSchema = z.object({
     error: "Invalid course ID",
   }),
 });
+export const lessonCreateSchema = z.object({
+  title: z.string().trim().min(3, {
+    error: "Lesson title must be at least 3 characters long",
+  }),
+  description: z
+    .string()
+    .trim()
+    .min(10, {
+      error: "Lesson description must be at least 10 characters long",
+    })
+    .optional(),
+  thumbnailKey: z
+    .string()
+    .min(1, {
+      error: "Thumbnail key required",
+    })
+    .optional(),
+  videoKey: z
+    .string()
+    .min(1, {
+      error: "Video key must be at least 1 characters long",
+    })
+    .optional(),
+  courseId: z.uuid({
+    error: "Invalid course ID",
+  }),
+  chapterId: z.uuid({
+    error: "Invalid chapter ID",
+  }),
+});
 export type CourseCreateSchema = z.infer<typeof courseCreateSchema>;
 export type ChapterCreateSchema = z.infer<typeof chapterCreateSchema>;
+export type LessonCreateSchema = z.infer<typeof lessonCreateSchema>;

@@ -2,10 +2,15 @@
 
 import db from "@/lib/db";
 import { chapters, courses, lessons } from "@/lib/db/schema";
-import { chapterCreateSchema, courseCreateSchema } from "@/lib/zod-schemas";
+import {
+  chapterCreateSchema,
+  courseCreateSchema,
+  lessonCreateSchema,
+} from "@/lib/zod-schemas";
 import type {
   ChapterCreateSchema,
   CourseCreateSchema,
+  LessonCreateSchema,
 } from "@/lib/zod-schemas";
 import { and, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -158,7 +163,7 @@ export async function createChapter(data: ChapterCreateSchema) {
 
       await tx.insert(chapters).values({
         ...data,
-        order: (chapterOfMaxOrder?.order ?? 1) + 1,
+        order: (chapterOfMaxOrder?.order ?? 0) + 1,
       });
     });
     revalidatePath(`/admin/courses/${data.courseId}/edit`);
@@ -170,6 +175,108 @@ export async function createChapter(data: ChapterCreateSchema) {
     return {
       success: false,
       error: "Failed to create chapter",
+    };
+  }
+}
+export async function createLesson(data: LessonCreateSchema) {
+  try {
+    const validation = lessonCreateSchema.safeParse(data);
+    if (!validation.success) {
+      return {
+        success: false,
+        error: "Invalid lesson data",
+      };
+    }
+    await db.transaction(async (tx) => {
+      const lessonOfMaxOrder = await tx.query.lessons.findFirst({
+        where: eq(lessons.chapterId, data.chapterId),
+        orderBy: desc(lessons.order),
+      });
+
+      await tx.insert(lessons).values({
+        ...data,
+        order: (lessonOfMaxOrder?.order ?? 0) + 1,
+      });
+    });
+    revalidatePath(`/admin/courses/${data.courseId}/edit`);
+    return {
+      success: true,
+      message: "Lesson created successfully",
+    };
+  } catch {
+    return {
+      success: false,
+      error: "Failed to create lesson",
+    };
+  }
+}
+export async function deleteLesson(
+  courseId: string,
+  chapterId: string,
+  lessonId: string
+) {
+  if (!courseId || !chapterId || !lessonId) {
+    return {
+      success: false,
+      error: "Invalid course id, chapter id or lesson id",
+    };
+  }
+  try {
+    const chapterWithLessons = await db.query.chapters.findFirst({
+      where: and(eq(chapters.id, chapterId), eq(chapters.courseId, courseId)),
+      with: {
+        lessons: {
+          columns: {
+            id: true,
+            order: true,
+          },
+        },
+      },
+    });
+    if (!chapterWithLessons) {
+      return {
+        success: false,
+        error: "Chapter not found",
+      };
+    }
+    if (!chapterWithLessons.lessons.length) {
+      return {
+        success: false,
+        error: "Chapter has no lessons",
+      };
+    }
+    const lessonToDelete = chapterWithLessons.lessons.find(
+      (l) => l.id === lessonId
+    );
+    if (!lessonToDelete) {
+      return {
+        success: false,
+        error: "Lesson not found in this chapter",
+      };
+    }
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(lessons)
+        .where(and(eq(lessons.id, lessonId), eq(lessons.chapterId, chapterId)));
+      const remainingLessons = chapterWithLessons.lessons.filter(
+        (l) => l.id !== lessonId
+      );
+      remainingLessons.forEach(async (l, idx) => {
+        await tx
+          .update(lessons)
+          .set({ order: idx + 1 })
+          .where(and(eq(lessons.id, l.id), eq(lessons.chapterId, chapterId)));
+      });
+    });
+    revalidatePath(`/admin/courses/${courseId}/edit`);
+    return {
+      success: true,
+      message: "Lesson deleted successfully",
+    };
+  } catch {
+    return {
+      success: false,
+      error: "Failed to delete lesson",
     };
   }
 }

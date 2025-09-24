@@ -28,7 +28,6 @@ import {
   ChevronRight,
   GripVerticalIcon,
   PencilIcon,
-  PlusIcon,
   TrashIcon,
   VideoIcon,
 } from "lucide-react";
@@ -36,6 +35,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { reorderChapterLessons, reorderChapters } from "@/actions/courses";
 import NewChapterModal from "./_components/new-chapter-modal";
+import NewLessonModal from "./_components/new-lesson-modal";
+import { DeleteLessonModal } from "./_components/delete-lesson-modal";
 
 export default function EditCourseContent({
   data,
@@ -182,7 +183,7 @@ export default function EditCourseContent({
     >
       <Card>
         <CardHeader className="flex justify-between items-center">
-          <CardTitle>Chapters</CardTitle>
+          <CardTitle className="text-xl">Chapters</CardTitle>
           <NewChapterModal courseId={data.id} />
         </CardHeader>
         <CardContent>
@@ -232,7 +233,7 @@ export default function EditCourseContent({
                         </div>
                       </CollapsibleTrigger>
 
-                      <CollapsibleContent className="pl-6">
+                      <CollapsibleContent className="pl-6 space-y-4">
                         <SortableContext
                           strategy={verticalListSortingStrategy}
                           items={item.lessons}
@@ -260,9 +261,11 @@ export default function EditCourseContent({
                                       <Button variant="outline" size="sm">
                                         <PencilIcon className="h-4 w-4" />
                                       </Button>
-                                      <Button variant="destructive" size="sm">
-                                        <TrashIcon className="h-4 w-4" />
-                                      </Button>
+                                      <DeleteLessonModal
+                                        courseId={data.id}
+                                        chapterId={item.id}
+                                        lessonId={lesson.id}
+                                      />
                                     </div>
                                   </div>
                                 )}
@@ -276,10 +279,10 @@ export default function EditCourseContent({
                             </div>
                           )}
                         </SortableContext>
-                        <Button className="w-full mt-2" variant="secondary">
-                          <PlusIcon className="mr-2 h-4 w-4" />
-                          Add Lesson
-                        </Button>
+                        <NewLessonModal
+                          courseId={data.id}
+                          chapterId={item.id}
+                        />
                       </CollapsibleContent>
                     </Collapsible>
                   </Card>
