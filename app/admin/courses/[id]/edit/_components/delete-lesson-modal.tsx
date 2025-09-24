@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { tryCatch } from "@/lib/try-catch";
 import { TrashIcon } from "lucide-react";
+import { useTransition } from "react";
 import { toast } from "sonner";
 
 export function DeleteLessonModal({
@@ -24,19 +25,18 @@ export function DeleteLessonModal({
   courseId: string;
   lessonId: string;
 }) {
+  const [isPending, startTransition] = useTransition();
   async function handleDeleteLesson() {
-    const { data: result, error } = await tryCatch(
-      deleteLesson(courseId, chapterId, lessonId)
-    );
-    if (error) {
-      toast.error("Failed to create lesson");
-      return;
-    }
-    if (!result.success) {
-      toast.error(result.error || "Failed to create lesson");
-      return;
-    }
-    toast.success(result.message || "Lesson created successfully");
+    startTransition(async () => {
+      const { data: result, error } = await tryCatch(
+        deleteLesson(courseId, chapterId, lessonId)
+      );
+      if (error || !result.success) {
+        toast.error(result?.error || "Failed to delete lesson");
+        return;
+      }
+      toast.success(result.message || "Lesson deleted");
+    });
   }
   return (
     <AlertDialog>
@@ -58,8 +58,9 @@ export function DeleteLessonModal({
           <AlertDialogAction
             onClick={handleDeleteLesson}
             className="cursor-pointer"
+            disabled={isPending}
           >
-            Delete
+            {isPending ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

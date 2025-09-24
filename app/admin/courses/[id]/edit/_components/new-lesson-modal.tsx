@@ -46,12 +46,8 @@ export default function NewLessonModal({
   async function onSubmit(values: LessonCreateSchema) {
     startTransition(async () => {
       const { data: result, error } = await tryCatch(createLesson(values));
-      if (error) {
-        toast.error("Failed to create lesson");
-        return;
-      }
-      if (!result.success) {
-        toast.error(result.error || "Failed to create lesson");
+      if (error || !result.success) {
+        toast.error(result?.error || "Failed to create lesson");
         return;
       }
       toast.success(result.message || "Lesson created successfully");

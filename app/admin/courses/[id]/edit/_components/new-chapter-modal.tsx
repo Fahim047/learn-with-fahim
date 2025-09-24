@@ -39,12 +39,8 @@ export default function NewChapterModal({ courseId }: { courseId: string }) {
   async function onSubmit(values: ChapterCreateSchema) {
     startTransition(async () => {
       const { data: result, error } = await tryCatch(createChapter(values));
-      if (error) {
-        toast.error("Failed to create chapter");
-        return;
-      }
-      if (!result.success) {
-        toast.error(result.error || "Failed to create chapter");
+      if (error || !result.success) {
+        toast.error(result?.error || "Failed to create chapter");
         return;
       }
       toast.success(result.message || "Chapter created successfully");
