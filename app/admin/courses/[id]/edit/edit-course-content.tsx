@@ -28,7 +28,6 @@ import {
   ChevronRight,
   GripVerticalIcon,
   PencilIcon,
-  TrashIcon,
   VideoIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,6 +36,7 @@ import { reorderChapterLessons, reorderChapters } from "@/actions/courses";
 import NewChapterModal from "./_components/new-chapter-modal";
 import NewLessonModal from "./_components/new-lesson-modal";
 import { DeleteLessonModal } from "./_components/delete-lesson-modal";
+import { DeleteChapterModal } from "./_components/delete-chapter-modal";
 
 export default function EditCourseContent({
   data,
@@ -216,10 +216,10 @@ export default function EditCourseContent({
                             <PencilIcon className="mr-1 h-4 w-4" />
                             Edit
                           </Button>
-                          <Button variant="destructive" size="sm">
-                            <TrashIcon className="mr-1 h-4 w-4" />
-                            Delete
-                          </Button>
+                          <DeleteChapterModal
+                            chapterId={item.id}
+                            courseId={data.id}
+                          />
                         </div>
                       </div>
                       <CollapsibleTrigger asChild>

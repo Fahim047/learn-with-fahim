@@ -48,8 +48,14 @@ export default function NewChapterModal({ courseId }: { courseId: string }) {
       setOpen(false);
     });
   }
+  function handleOpenChange(open: boolean) {
+    if (!open) {
+      form.reset();
+    }
+    setOpen(open);
+  }
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button>
           <PlusIcon className="mr-1 size-4" />

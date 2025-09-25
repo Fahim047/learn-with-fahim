@@ -55,8 +55,14 @@ export default function NewLessonModal({
       setOpen(false);
     });
   }
+  function handleOpenChange(open: boolean) {
+    if (!open) {
+      form.reset();
+    }
+    setOpen(open);
+  }
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full">
           <PlusIcon className="mr-1 size-4" />

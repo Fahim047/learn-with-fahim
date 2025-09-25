@@ -12,7 +12,7 @@ import type {
   CourseCreateSchema,
   LessonCreateSchema,
 } from "@/lib/zod-schemas";
-import { and, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 export async function createCourse(data: CourseCreateSchema) {
   try {
@@ -277,6 +277,75 @@ export async function deleteLesson(
     return {
       success: false,
       error: "Failed to delete lesson",
+    };
+  }
+}
+export async function deleteChapter(courseId: string, chapterId: string) {
+  if (!courseId || !chapterId) {
+    return {
+      success: false,
+      error: "Invalid course id or chapter id",
+    };
+  }
+  try {
+    const courseWithChapters = await db.query.courses.findFirst({
+      where: eq(courses.id, courseId),
+      with: {
+        chapters: {
+          columns: {
+            id: true,
+            order: true,
+          },
+          orderBy: asc(chapters.order),
+        },
+      },
+    });
+    if (!courseWithChapters) {
+      return {
+        success: false,
+        error: "Course not found",
+      };
+    }
+    if (!courseWithChapters.chapters.length) {
+      return {
+        success: false,
+        error: "Course has no chapters",
+      };
+    }
+    const chapterToDelete = courseWithChapters.chapters.find(
+      (c) => c.id === chapterId
+    );
+    if (!chapterToDelete) {
+      return {
+        success: false,
+        error: "Chapter not found",
+      };
+    }
+    const remainingChapters = courseWithChapters.chapters.filter(
+      (c) => c.id !== chapterId
+    );
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(chapters)
+        .where(
+          and(eq(chapters.id, chapterId), eq(chapters.courseId, courseId))
+        );
+      remainingChapters.forEach(async (c, idx) => {
+        await tx
+          .update(chapters)
+          .set({ order: idx + 1 })
+          .where(eq(chapters.id, c.id));
+      });
+    });
+    revalidatePath(`/admin/courses/${courseId}/edit`);
+    return {
+      success: true,
+      message: "Chapter deleted successfully",
+    };
+  } catch {
+    return {
+      success: false,
+      error: "Failed to delete chapter",
     };
   }
 }
