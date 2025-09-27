@@ -178,6 +178,7 @@ export default function EditCourseForm({
                       <FileUploader
                         onChange={field.onChange}
                         value={field.value}
+                        acceptedFileType="image"
                       />
                     </FormControl>
                     <FormMessage />

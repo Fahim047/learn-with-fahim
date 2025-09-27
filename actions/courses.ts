@@ -2,6 +2,7 @@
 
 import db from "@/lib/db";
 import { chapters, courses, lessons } from "@/lib/db/schema";
+import { requireAdmin } from "@/lib/require-admin";
 import {
   chapterCreateSchema,
   courseCreateSchema,
@@ -346,6 +347,40 @@ export async function deleteChapter(courseId: string, chapterId: string) {
     return {
       success: false,
       error: "Failed to delete chapter",
+    };
+  }
+}
+
+export async function updateLessonContent(
+  data: LessonCreateSchema,
+  lessonId: string
+) {
+  await requireAdmin();
+  try {
+    const result = lessonCreateSchema.safeParse(data);
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Invalid lesson data",
+      };
+    }
+    await db
+      .update(lessons)
+      .set({
+        title: result.data.title,
+        description: result.data.description,
+        thumbnailKey: result.data.thumbnailKey,
+        videoKey: result.data.videoKey,
+      })
+      .where(eq(lessons.id, lessonId));
+    return {
+      success: true,
+      message: "Lesson updated",
+    };
+  } catch {
+    return {
+      success: false,
+      error: "Failed to update lesson content",
     };
   }
 }

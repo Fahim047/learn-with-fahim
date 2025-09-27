@@ -11,7 +11,6 @@ import {
   GripVerticalIcon,
 } from "lucide-react";
 export default function AdminChapterCard() {
-  console.log("AdminChapterCard");
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">

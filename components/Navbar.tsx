@@ -24,7 +24,6 @@ import {
 import { Separator } from "./ui/separator";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
-import { useTheme } from "next-themes";
 import { navLinks } from "@/constants";
 import ThemeToggler from "./theme-toggler";
 const NavLink = ({
@@ -58,7 +57,6 @@ export default function ProfessionalNavbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [isSheetOpen, setSheetOpen] = useState(false);
-  const { setTheme } = useTheme();
 
   const handleLogout = () => {
     authClient.signOut();

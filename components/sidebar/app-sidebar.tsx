@@ -12,12 +12,11 @@ import {
   IconFolder,
   IconHelp,
   IconInnerShadowTop,
-  IconListDetails,
   IconReport,
   IconSearch,
   IconSettings,
   IconUsers,
-  IconStack
+  IconStack,
 } from "@tabler/icons-react";
 
 import { NavDocuments } from "@/components/sidebar/nav-documents";
@@ -44,7 +43,7 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/admin",
       icon: IconDashboard,
     },
     {

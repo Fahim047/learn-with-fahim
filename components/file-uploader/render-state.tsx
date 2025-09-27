@@ -45,19 +45,25 @@ export function RenderUploadedState({
   previewUrl,
   isDeleting,
   handleRemoveFile,
+  fileType,
 }: {
   previewUrl: string;
   isDeleting: boolean;
-  handleRemoveFile: () => Promise<void>;
+  fileType: "image" | "video";
+  handleRemoveFile: () => void;
 }) {
   return (
-    <div className="relative w-48 h-48 mx-auto">
-      <Image
-        src={previewUrl}
-        alt="uploaded file"
-        fill
-        className="object-cover rounded-md"
-      />
+    <div className="relative max-w-full w-[400px] h-[250px] mx-auto">
+      {fileType === "image" ? (
+        <Image
+          src={previewUrl}
+          alt="uploaded file"
+          fill
+          className="object-cover rounded-md"
+        />
+      ) : (
+        <video src={previewUrl} controls className="w-full h-full rounded-md" />
+      )}
       <Button
         type="button"
         variant="destructive"

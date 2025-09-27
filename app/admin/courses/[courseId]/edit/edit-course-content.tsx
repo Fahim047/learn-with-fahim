@@ -37,6 +37,7 @@ import NewChapterModal from "./_components/new-chapter-modal";
 import NewLessonModal from "./_components/new-lesson-modal";
 import { DeleteLessonModal } from "./_components/delete-lesson-modal";
 import { DeleteChapterModal } from "./_components/delete-chapter-modal";
+import Link from "next/link";
 
 export default function EditCourseContent({
   data,
@@ -68,7 +69,7 @@ export default function EditCourseContent({
   const [items, setItems] = useState(initialItems);
   useEffect(() => {
     setItems(initialItems);
-  }, [data]);
+  }, [data, initialItems]);
 
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -253,9 +254,12 @@ export default function EditCourseContent({
                                         {...lessonListeners}
                                       />
                                       <VideoIcon className="h-4 w-4 text-muted-foreground" />
-                                      <span className="text-sm font-medium">
+                                      <Link
+                                        href={`/admin/courses/${data.id}/${item.id}/${lesson.id}`}
+                                        className="text-sm font-medium hover:underline"
+                                      >
                                         {lesson.title}
-                                      </span>
+                                      </Link>
                                     </div>
                                     <div className="space-x-2">
                                       <Button variant="outline" size="sm">

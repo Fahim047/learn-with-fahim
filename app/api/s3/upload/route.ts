@@ -31,10 +31,10 @@ export async function POST(req: Request) {
       presignedUrl,
       key: uniqueKey,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     return NextResponse.json(
       {
-        error: "Failed to generate presigned URL",
+        error: (error as Error)?.message || "Failed to generate presigned URL",
       },
       { status: 500 }
     );

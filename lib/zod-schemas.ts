@@ -57,25 +57,9 @@ export const lessonCreateSchema = z.object({
   title: z.string().trim().min(3, {
     error: "Lesson title must be at least 3 characters long",
   }),
-  description: z
-    .string()
-    .trim()
-    .min(10, {
-      error: "Lesson description must be at least 10 characters long",
-    })
-    .optional(),
-  thumbnailKey: z
-    .string()
-    .min(1, {
-      error: "Thumbnail key required",
-    })
-    .optional(),
-  videoKey: z
-    .string()
-    .min(1, {
-      error: "Video key must be at least 1 characters long",
-    })
-    .optional(),
+  description: z.string().optional(),
+  thumbnailKey: z.string().optional(),
+  videoKey: z.string().optional(),
   courseId: z.uuid({
     error: "Invalid course ID",
   }),

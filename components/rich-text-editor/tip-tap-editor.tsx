@@ -8,7 +8,7 @@ import { useEffect } from "react";
 
 interface TipTapEditorProps {
   field: {
-    value: string;
+    value: string | undefined;
     onChange: (value: string) => void;
   };
 }
@@ -17,7 +17,7 @@ export default function TipTapEditor({ field }: TipTapEditorProps) {
   const editor = useEditor({
     extensions: [StarterKit, TextAlign],
     immediatelyRender: false,
-    content: field.value ? JSON.parse(field.value) : "", // initial load only
+    content: field.value ? JSON.parse(field.value) : undefined, // initial load only
     editorProps: {
       attributes: {
         class: "w-full min-h-[350px] p-4 focus:outline-none",

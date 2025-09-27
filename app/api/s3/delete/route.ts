@@ -11,16 +11,15 @@ export async function DELETE(req: Request) {
     if (!key) {
       return NextResponse.json({ error: "Key is required" }, { status: 400 });
     }
-    console.log(key);
     const command = new DeleteObjectCommand({
       Bucket: env.NEXT_PUBLIC_S3_BUCKET_NAME,
       Key: key,
     });
     await s3.send(command);
     return NextResponse.json({ message: "File deleted successfully", key });
-  } catch (error) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to delete file" },
+      { error: (error as Error)?.message || "Failed to delete file" },
       { status: 500 }
     );
   }

@@ -10,3 +10,8 @@ export const navLinks = [
     href: "#",
   },
 ];
+
+export const fileUploaderMaxSize = {
+  image: 5 * 1024 * 1024,
+  video: 2048 * 1024 * 1024,
+};

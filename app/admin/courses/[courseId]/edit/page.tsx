@@ -14,10 +14,10 @@ import EditCourseContent from "./edit-course-content";
 export default async function AdminCourseEditPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ courseId: string }>;
 }) {
-  const { id } = await params;
-  const { data: course, error } = await tryCatch(adminGetCourse(id));
+  const { courseId } = await params;
+  const { data: course, error } = await tryCatch(adminGetCourse(courseId));
   if (error) {
     return (
       <div className="h-screen flex items-center justify-center">

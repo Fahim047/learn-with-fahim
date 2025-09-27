@@ -1,4 +1,3 @@
-/* eslint-disable node/no-process-env */
 import type { ZodObject, ZodRawShape } from "zod";
 
 import { ZodError } from "zod";
