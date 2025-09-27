@@ -15,6 +15,7 @@ import type {
 } from "@/lib/zod-schemas";
 import { and, asc, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import z from "zod";
 export async function createCourse(data: CourseCreateSchema) {
   try {
     const validation = courseCreateSchema.safeParse(data);
@@ -383,4 +384,23 @@ export async function updateLessonContent(
       error: "Failed to update lesson content",
     };
   }
+}
+
+export async function deleteCourse(courseId: string) {
+  const parsed = z.uuid().safeParse(courseId);
+  if (!parsed.success) throw new Error("Invalid course id");
+
+  await requireAdmin();
+
+  const deleted = await db
+    .delete(courses)
+    .where(eq(courses.id, parsed.data))
+    .returning();
+
+  if (deleted.length === 0) {
+    return { success: false, error: "Course not found" };
+  }
+
+  revalidatePath("/admin/courses");
+  return { success: true, message: "Course deleted successfully" };
 }

@@ -14,7 +14,7 @@ export default async function AdminCoursesPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Your Courses</h1>
         <Link href="/admin/courses/create" className={buttonVariants()}>
-          <PlusIcon className="mr-2 h-4 w-4" />
+          <PlusIcon />
           <span>Add Course</span>
         </Link>
       </div>
@@ -35,7 +35,7 @@ async function RenderCourses() {
   const { data, error } = await tryCatch(adminGetCourses());
 
   if (error !== null) {
-    return <ErrorState message={error?.message} />;
+    return <ErrorState message="Something went wrong while loading courses." />;
   }
 
   const hasCourses = data && data.length > 0;

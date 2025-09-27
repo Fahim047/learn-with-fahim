@@ -67,10 +67,12 @@ export function AdminCourseCard({
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
-              onClick={() => onDelete?.(data.id)}
+              asChild
             >
-              <Trash />
-              Delete
+              <Link href={`/admin/courses/${data.id}/delete`}>
+                <Trash />
+                Delete
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
