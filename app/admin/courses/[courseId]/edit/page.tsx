@@ -49,9 +49,9 @@ export default async function AdminCourseEditPage({
         <TabsContent value="course-content">
           <Card>
             <CardHeader>
-              <CardTitle>Course Content</CardTitle>
+              <CardTitle>Edit Course</CardTitle>
               <CardDescription>
-                Fill in the course content of the course.
+                Edit the course content of the course.
               </CardDescription>
             </CardHeader>
             <EditCourseContent data={course} />

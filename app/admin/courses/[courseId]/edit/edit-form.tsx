@@ -124,7 +124,7 @@ export default function EditCourseForm({
           <ArrowLeft />
           <span>Back</span>
         </Link>
-        <h1 className="text-2xl font-bold">Create Course</h1>
+        <h1 className="text-2xl font-bold">Edit Course</h1>
       </div>
       <Card className="mt-4">
         <CardHeader>

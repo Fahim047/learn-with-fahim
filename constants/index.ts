@@ -6,8 +6,8 @@ export const navLinks = [
   },
   {
     id: 2,
-    label: "About",
-    href: "#",
+    label: "Courses",
+    href: "/courses",
   },
 ];
 
