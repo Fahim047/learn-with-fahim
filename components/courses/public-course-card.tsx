@@ -12,6 +12,7 @@ import { buttonVariants } from "../ui/button";
 
 interface PublicCourseCardProps {
   id: string;
+  slug: string;
   title: string;
   shortDescription?: string;
   thumbnailKey?: string;
@@ -19,6 +20,7 @@ interface PublicCourseCardProps {
 
 export function PublicCourseCard({
   id,
+  slug,
   title,
   shortDescription,
   thumbnailKey,
@@ -49,7 +51,7 @@ export function PublicCourseCard({
       </CardContent>
       <CardFooter>
         <Link
-          href={`/courses/${id}`}
+          href={`/courses/${slug}`}
           className={buttonVariants({
             className: "w-full",
           })}
