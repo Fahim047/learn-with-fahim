@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { getCourseBySlug } from "@/data/public/get-course";
 import { generateImageURL } from "@/utils";
 import { notFound } from "next/navigation";
+import { tryCatch } from "@/lib/try-catch";
+import RichTextPreview from "@/components/rich-text-editor/tip-tap-preview";
 
 export default async function CoursePage({
   params,
@@ -16,8 +18,8 @@ export default async function CoursePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const course = await getCourseBySlug(slug);
-  if (!course) {
+  const { data: course, error } = await tryCatch(getCourseBySlug(slug));
+  if (error) {
     return notFound();
   }
   return (
@@ -44,9 +46,7 @@ export default async function CoursePage({
           <CardDescription>By Fahimul Islam</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground leading-relaxed">
-            {course.description}
-          </p>
+          <RichTextPreview doc={JSON.parse(course.description)} />
           <div className="mt-6">
             <Button size="lg" className="w-full sm:w-auto">
               Enroll Now
