@@ -5,12 +5,12 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { getCourseBySlug } from "@/data/public/get-course";
 import { generateImageURL } from "@/utils";
 import { notFound } from "next/navigation";
 import { tryCatch } from "@/lib/try-catch";
 import RichTextPreview from "@/components/rich-text-editor/tip-tap-preview";
+import EnrollNowButton from "@/components/courses/enroll-now-button";
 
 export default async function CoursePage({
   params,
@@ -48,9 +48,7 @@ export default async function CoursePage({
         <CardContent>
           <RichTextPreview doc={JSON.parse(course.description)} />
           <div className="mt-6">
-            <Button size="lg" className="w-full sm:w-auto">
-              Enroll Now
-            </Button>
+            <EnrollNowButton courseId={course.id} />
           </div>
         </CardContent>
       </Card>

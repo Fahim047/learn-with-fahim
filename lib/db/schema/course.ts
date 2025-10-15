@@ -8,6 +8,7 @@ import {
   numeric,
 } from "drizzle-orm/pg-core";
 import { chapters } from "./chapter";
+import { enrollments } from "./enrollment";
 
 export const courses = pgTable("courses", {
   id: uuid().primaryKey().defaultRandom(),
@@ -28,4 +29,5 @@ export const courses = pgTable("courses", {
 
 export const courseRelations = relations(courses, ({ many }) => ({
   chapters: many(chapters),
+  enrollments: many(enrollments),
 }));

@@ -25,3 +25,5 @@ const testingFrameworks = {
 };
 
 type TestingFramework = keyof typeof testingFrameworks;
+
+const hello = "hele";

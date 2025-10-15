@@ -51,5 +51,17 @@ export const auth = betterAuth({
     },
     sendOnSignUp: true,
   },
+  user: {
+    additionalFields: {
+      stripeCustomerId: {
+        type: "string",
+        input: false,
+        required: false,
+      },
+    },
+  },
   plugins: [admin(), nextCookies()],
 });
+
+export type Session = typeof auth.$Infer.Session;
+export type User = typeof auth.$Infer.Session.user;

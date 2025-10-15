@@ -1,8 +1,11 @@
 "use server";
 
+import { requireUser } from "@/data/user/require-user";
 import db from "@/lib/db";
-import { chapters, courses, lessons } from "@/lib/db/schema";
+import { chapters, courses, enrollments, lessons, user } from "@/lib/db/schema";
+import env from "@/lib/env";
 import { requireAdmin } from "@/lib/require-admin";
+import { stripeClient } from "@/lib/stripe";
 import {
   chapterCreateSchema,
   courseCreateSchema,
@@ -13,10 +16,13 @@ import type {
   CourseCreateSchema,
   LessonCreateSchema,
 } from "@/lib/zod-schemas";
+import { ServerActionResponse } from "@/types";
 import { and, asc, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import z from "zod";
 export async function createCourse(data: CourseCreateSchema) {
+  await requireAdmin();
   try {
     const validation = courseCreateSchema.safeParse(data);
     if (!validation.success) {
@@ -48,6 +54,7 @@ export async function createCourse(data: CourseCreateSchema) {
   }
 }
 export async function updateCourse(id: string, data: CourseCreateSchema) {
+  await requireAdmin();
   try {
     const validation = courseCreateSchema.safeParse(data);
     if (!validation.success) {
@@ -83,6 +90,7 @@ export async function reorderChapters(
   courseId: string,
   chapterItems: { id: string; order: number }[]
 ) {
+  await requireAdmin();
   if (!courseId || !chapterItems.length) {
     return { success: false, error: "Invalid data" };
   }
@@ -117,6 +125,7 @@ export async function reorderChapterLessons(
   chapterId: string,
   lessonItems: { id: string; order: number }[]
 ) {
+  await requireAdmin();
   try {
     if (!courseId || !chapterId || !lessonItems || lessonItems.length === 0) {
       return {
@@ -149,6 +158,7 @@ export async function reorderChapterLessons(
   }
 }
 export async function createChapter(data: ChapterCreateSchema) {
+  await requireAdmin();
   try {
     const validation = chapterCreateSchema.safeParse(data);
     if (!validation.success) {
@@ -181,6 +191,7 @@ export async function createChapter(data: ChapterCreateSchema) {
   }
 }
 export async function createLesson(data: LessonCreateSchema) {
+  await requireAdmin();
   try {
     const validation = lessonCreateSchema.safeParse(data);
     if (!validation.success) {
@@ -217,6 +228,7 @@ export async function deleteLesson(
   chapterId: string,
   lessonId: string
 ) {
+  await requireAdmin();
   if (!courseId || !chapterId || !lessonId) {
     return {
       success: false,
@@ -283,12 +295,14 @@ export async function deleteLesson(
   }
 }
 export async function deleteChapter(courseId: string, chapterId: string) {
+  await requireAdmin();
   if (!courseId || !chapterId) {
     return {
       success: false,
       error: "Invalid course id or chapter id",
     };
   }
+
   try {
     const courseWithChapters = await db.query.courses.findFirst({
       where: eq(courses.id, courseId),
@@ -403,4 +417,128 @@ export async function deleteCourse(courseId: string) {
 
   revalidatePath("/admin/courses");
   return { success: true, message: "Course deleted successfully" };
+}
+
+export async function enrollInCourse(
+  courseId: string
+): Promise<ServerActionResponse | never> {
+  const userData = await requireUser();
+
+  let checkoutSessionUrl: string | null = null;
+  try {
+    const parsed = z.uuid().safeParse(courseId);
+    if (!parsed.success) throw new Error("Invalid course id");
+
+    const course = await db.query.courses.findFirst({
+      where: eq(courses.id, parsed.data),
+    });
+    if (!course) {
+      return {
+        success: false,
+        message: "Course not found",
+      };
+    }
+
+    let stripeCustomerId = userData.stripeCustomerId;
+    if (!stripeCustomerId) {
+      const customer = await stripeClient.customers.create({
+        email: userData.email,
+        name: userData.name,
+        metadata: {
+          userId: userData.id,
+        },
+      });
+      stripeCustomerId = customer.id;
+      await db
+        .update(user)
+        .set({
+          stripeCustomerId,
+        })
+        .where(eq(user.id, userData.id));
+    }
+
+    const result = await db.transaction(async (tx) => {
+      const existingEnrollment = await tx.query.enrollments.findFirst({
+        where: and(
+          eq(enrollments.userId, userData.id),
+          eq(enrollments.courseId, parsed.data)
+        ),
+        columns: {
+          id: true,
+          status: true,
+        },
+      });
+
+      if (existingEnrollment?.status === "active") {
+        return {
+          success: false,
+          message: "You are already enrolled in this course",
+        };
+      }
+
+      let enrollment;
+
+      if (existingEnrollment) {
+        const updated = await tx
+          .update(enrollments)
+          .set({ status: "pending" })
+          .where(
+            and(
+              eq(enrollments.userId, userData.id),
+              eq(enrollments.courseId, parsed.data)
+            )
+          )
+          .returning();
+
+        enrollment = updated[0];
+      } else {
+        const inserted = await tx
+          .insert(enrollments)
+          .values({
+            userId: userData.id,
+            courseId: parsed.data,
+          })
+          .returning();
+
+        enrollment = inserted[0];
+      }
+
+      // ✅ Create Stripe checkout session
+      const checkoutSession = await stripeClient.checkout.sessions.create({
+        customer: stripeCustomerId,
+        line_items: [
+          {
+            price: "price_1SHfkTQ3q5EuOfIb9up6d9k7", // Replace with real price ID
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: `${env.NEXT_PUBLIC_BASE_URL}/payment/success`,
+        cancel_url: `${env.NEXT_PUBLIC_BASE_URL}/payment/cancel`,
+        metadata: {
+          courseId: parsed.data,
+          enrollmentId: enrollment.id.toString(),
+        },
+      });
+      return {
+        enrollmentId: enrollment.id,
+        checkoutSessionUrl: checkoutSession.url,
+      };
+    });
+    checkoutSessionUrl = result.checkoutSessionUrl as string;
+  } catch (error) {
+    console.error("Error enrolling in course:", error);
+    if (error instanceof stripeClient.errors.StripeAPIError) {
+      return {
+        success: false,
+        message: "Payment System Error. Please try again later.",
+      };
+    }
+    return {
+      success: false,
+      message: "Failed to enroll in course",
+    };
+  }
+
+  redirect(checkoutSessionUrl);
 }

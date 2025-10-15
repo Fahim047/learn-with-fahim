@@ -15,3 +15,8 @@ export interface APIResponse<T> {
   message?: string;
   error?: string;
 }
+
+export interface ServerActionResponse {
+  success: boolean;
+  message: string;
+}

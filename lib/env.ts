@@ -15,6 +15,8 @@ const EnvSchema = z.object({
   AWS_ENDPOINT_URL_IAM: z.string(),
   AWS_REGION: z.string(),
   NEXT_PUBLIC_S3_BUCKET_NAME: z.string(),
+  STRIPE_SECRET_KEY: z.string(),
+  STRIPE_WEBHOOK_SECRET: z.string(),
 });
 
 export type EnvSchema = z.infer<typeof EnvSchema>;
