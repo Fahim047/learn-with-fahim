@@ -32,11 +32,21 @@ export async function createCourse(data: CourseCreateSchema) {
       };
     }
 
+    const stripeProduct = await stripeClient.products.create({
+      name: data.title,
+      description: data.shortDescription,
+      default_price_data: {
+        currency: "bdt",
+        unit_amount: data.sellingPrice * 100,
+      },
+    });
+
     // Convert string numbers to actual numbers for numeric fields
     const courseData = {
       ...data,
       regularPrice: data.regularPrice.toString(),
       sellingPrice: data.sellingPrice.toString(),
+      stripePriceId: stripeProduct.default_price as string,
     };
 
     await db.insert(courses).values(courseData).returning();
@@ -424,7 +434,7 @@ export async function enrollInCourse(
 ): Promise<ServerActionResponse | never> {
   const userData = await requireUser();
 
-  let checkoutSessionUrl: string | null = null;
+  let checkoutSessionUrl: string = `./`;
   try {
     const parsed = z.uuid().safeParse(courseId);
     if (!parsed.success) throw new Error("Invalid course id");
@@ -508,7 +518,7 @@ export async function enrollInCourse(
         customer: stripeCustomerId,
         line_items: [
           {
-            price: "price_1SHfkTQ3q5EuOfIb9up6d9k7", // Replace with real price ID
+            price: course.stripePriceId,
             quantity: 1,
           },
         ],

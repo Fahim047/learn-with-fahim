@@ -21,6 +21,7 @@ export const courses = pgTable("courses", {
   status: text().notNull().default("draft"),
   regularPrice: numeric().notNull(),
   sellingPrice: numeric().notNull(),
+  stripePriceId: text().unique().notNull(),
   slug: text().notNull().unique(),
   duration: integer().notNull().default(0),
   createdAt: timestamp().notNull().defaultNow(),
