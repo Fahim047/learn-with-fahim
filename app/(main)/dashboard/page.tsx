@@ -1,6 +1,6 @@
 import { Logout } from "@/components/logout";
 
-export default function Dashboard() {
+export default async function Dashboard() {
   return (
     <div>
       Dashboard

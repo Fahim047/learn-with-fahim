@@ -12,5 +12,5 @@ export default function AdminPage() {
       </div>
       <DataTable data={data} />
     </>
-  )
+  );
 }
