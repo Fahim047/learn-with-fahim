@@ -55,7 +55,7 @@ export default async function CoursePage({
           <div className="mt-6">
             {enrolled ? (
               <Link
-                href={`/course/${course.id}/overview`}
+                href={`/dashboard/courses/${course.slug}/overview`}
                 className="inline-flex items-center justify-center w-full bg-green-600 text-white font-medium py-2.5 rounded-xl hover:bg-green-700 transition"
               >
                 Go to Course

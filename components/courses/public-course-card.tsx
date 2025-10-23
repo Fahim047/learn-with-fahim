@@ -16,6 +16,7 @@ interface PublicCourseCardProps {
   title: string;
   shortDescription?: string;
   thumbnailKey?: string;
+  className?: string;
 }
 
 export function PublicCourseCard({
@@ -24,9 +25,10 @@ export function PublicCourseCard({
   title,
   shortDescription,
   thumbnailKey,
+  className,
 }: PublicCourseCardProps) {
   return (
-    <Card className="overflow-hidden flex flex-col pt-0">
+    <Card className={`${className} overflow-hidden flex flex-col pt-0`}>
       {thumbnailKey ? (
         <div className="relative w-full h-40">
           <Image
