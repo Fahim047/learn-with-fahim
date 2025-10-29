@@ -13,29 +13,35 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 
-type Lesson = {
+interface Lesson {
   id: string;
   title: string;
   duration?: string;
   completed?: boolean;
-};
+}
 
-type Chapter = {
+interface Chapter {
   id: string;
   title: string;
   lessons: Lesson[];
-};
+}
 
 interface CourseContentSidebarProps {
   courseSlug: string;
   courseTitle: string;
   chapters: Chapter[];
+  progress: number;
+  totalLessons: number;
+  completedLessons: number;
 }
 
 export default function CourseContentSidebar({
   courseTitle,
   courseSlug,
   chapters,
+  progress,
+  totalLessons,
+  completedLessons,
 }: CourseContentSidebarProps) {
   const pathname = usePathname();
 
@@ -53,13 +59,9 @@ export default function CourseContentSidebar({
     return chapters[0]?.id;
   }, [chapters, activeLessonId]);
 
-  const totalLessons = chapters.flatMap((c) => c.lessons).length;
-  const completedCount = chapters
-    .flatMap((c) => c.lessons)
-    .filter((l) => l.completed).length;
-
   return (
     <aside className="w-80 border-r backdrop-blur-xl p-4 flex flex-col bg-background/70">
+      {/* Header */}
       <h2 className="text-lg font-semibold flex items-center gap-2 mb-3">
         <BookOpen className="h-5 w-5 text-primary" />
         {courseTitle}
@@ -67,12 +69,9 @@ export default function CourseContentSidebar({
 
       {/* Progress Bar */}
       <div className="space-y-2">
-        <Progress
-          value={(completedCount / totalLessons) * 100}
-          className="h-2"
-        />
+        <Progress value={progress} className="h-2" />
         <p className="text-xs text-muted-foreground text-center">
-          {completedCount} / {totalLessons} lessons completed
+          {completedLessons} / {totalLessons} lessons completed
         </p>
       </div>
 
@@ -94,6 +93,7 @@ export default function CourseContentSidebar({
             <AccordionTrigger className="text-base font-medium py-2 hover:text-primary">
               {chapter.title}
             </AccordionTrigger>
+
             <AccordionContent>
               <div className="space-y-1">
                 {chapter.lessons.map((lesson) => {

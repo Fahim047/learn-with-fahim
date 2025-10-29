@@ -5,20 +5,23 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { PlayCircle } from "lucide-react";
 import { getLesson } from "@/data/user/get-lesson";
 import { tryCatch } from "@/lib/try-catch";
 import { notFound } from "next/navigation";
+import VideoPlayer from "@/components/shared/video-player";
+import { MarkAsCompleteButton } from "./mark-as-complete-btn";
 
 export default async function LessonPage({
   params,
 }: {
-  params: Promise<{ lessonId: string }>;
+  params: Promise<{ lessonId: string; slug: string }>;
 }) {
   const { lessonId } = await params;
   const { data: lessonData, error } = await tryCatch(getLesson(lessonId));
   if (error || !lessonData) return notFound();
+
+  const isCompleted = !!lessonData.completed;
 
   return (
     <div className="space-y-6">
@@ -33,13 +36,18 @@ export default async function LessonPage({
 
         <CardContent className="space-y-4">
           <div className="aspect-video bg-black/80 rounded-lg flex items-center justify-center text-white text-lg font-medium">
-            🎬 Video Player Placeholder
+            {lessonData.videoKey ? (
+              <VideoPlayer videoKey={lessonData.videoKey} />
+            ) : (
+              <p>No video available</p>
+            )}
           </div>
 
           <div className="flex justify-end">
-            <Button size="lg" className="w-full sm:w-auto">
-              Mark as Complete
-            </Button>
+            <MarkAsCompleteButton
+              lessonId={lessonId}
+              isCompleted={isCompleted}
+            />
           </div>
         </CardContent>
       </Card>

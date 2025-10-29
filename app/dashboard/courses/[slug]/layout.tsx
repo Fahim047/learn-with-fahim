@@ -22,7 +22,11 @@ export default async function CourseLayout({
         courseSlug={slug}
         courseTitle={courseSidebarData.title}
         chapters={courseSidebarData.chapters}
+        progress={courseSidebarData.progress}
+        totalLessons={courseSidebarData.totalLessons}
+        completedLessons={courseSidebarData.completedLessons}
       />
+
       <div className="flex-1 p-8 overflow-y-auto">{children}</div>
     </div>
   );

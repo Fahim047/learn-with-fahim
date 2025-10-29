@@ -2,7 +2,14 @@
 
 import { requireUser } from "@/data/user/require-user";
 import db from "@/lib/db";
-import { chapters, courses, enrollments, lessons, user } from "@/lib/db/schema";
+import {
+  chapters,
+  courses,
+  enrollments,
+  lessonCompletions,
+  lessons,
+  user,
+} from "@/lib/db/schema";
 import env from "@/lib/env";
 import { requireAdmin } from "@/lib/require-admin";
 import { stripeClient } from "@/lib/stripe";
@@ -551,4 +558,34 @@ export async function enrollInCourse(
   }
 
   redirect(checkoutSessionUrl);
+}
+
+export async function markLessonAsComplete(lessonId: string) {
+  const user = await requireUser();
+  const userId = user.id;
+  try {
+    const existing = await db.query.lessonCompletions.findFirst({
+      where: (c, { and, eq }) =>
+        and(eq(c.userId, userId), eq(c.lessonId, lessonId)),
+    });
+
+    if (existing) {
+      return { success: false, message: "Lesson already marked as complete." };
+    }
+
+    await db.insert(lessonCompletions).values({
+      userId,
+      lessonId,
+    });
+
+    revalidatePath("/dashboard/courses");
+
+    return { success: true, message: "Lesson marked as complete." };
+  } catch (error) {
+    console.error("❌ Error marking lesson as complete:", error);
+    return {
+      success: false,
+      message: "Something went wrong while marking the lesson as complete.",
+    };
+  }
 }

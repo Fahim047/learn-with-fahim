@@ -1,6 +1,7 @@
 import { pgTable, uuid, text, integer, timestamp } from "drizzle-orm/pg-core";
 import { chapters } from "./chapter";
 import { relations } from "drizzle-orm";
+import { lessonCompletions } from "./lesson-completions";
 
 export const lessons = pgTable("lessons", {
   id: uuid().primaryKey().defaultRandom(),
@@ -16,9 +17,10 @@ export const lessons = pgTable("lessons", {
   updatedAt: timestamp().notNull().defaultNow(),
 });
 
-export const lessonRelations = relations(lessons, ({ one }) => ({
+export const lessonRelations = relations(lessons, ({ one, many }) => ({
   chapter: one(chapters, {
     fields: [lessons.chapterId],
     references: [chapters.id],
   }),
+  completions: many(lessonCompletions),
 }));
