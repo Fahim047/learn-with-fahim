@@ -1,14 +1,12 @@
-"use client";
-
 import Link from "next/link";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { BookOpen, PlayCircle, Users } from "lucide-react";
+import PopularCoursesSection from "@/components/courses/popular-courses-section";
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col">
-      {/* Hero Section */}
+    <>
       <section className="min-h-[50vh] relative flex flex-col items-center justify-center text-center py-20 px-6">
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight max-w-3xl">
           Learn Anything. <span className="text-primary">Anywhere.</span>
@@ -30,9 +28,7 @@ export default function LandingPage() {
           </Link>
         </div>
       </section>
-
-      {/* Features Section */}
-      <section className="py-20 px-6">
+      <section className="py-12 px-6">
         <div className="max-w-5xl mx-auto text-center mb-12">
           <h2 className="text-3xl font-bold">Features</h2>
           <p className="mt-2 text-muted-foreground">
@@ -57,43 +53,8 @@ export default function LandingPage() {
           />
         </div>
       </section>
-
-      {/* Courses Preview */}
-      <section className="py-20 px-6">
-        <div className="max-w-5xl mx-auto text-center mb-12">
-          <h2 className="text-3xl font-bold">Popular Courses</h2>
-          <p className="mt-2 text-muted-foreground">
-            Get started with our most loved courses.
-          </p>
-        </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-          {/* Replace with real courses */}
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="hover:shadow-lg transition">
-              <CardContent className="p-6 space-y-4">
-                <div className="aspect-video bg-muted rounded-md" />
-                <h3 className="font-semibold text-lg">Course Title {i}</h3>
-                <p className="text-sm text-muted-foreground">
-                  Short description of the course to attract users.
-                </p>
-                <Button asChild className="w-full">
-                  <Link href={`/courses/${i}`}>View Course</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <div className="mt-10 text-center">
-          <Link href="/courses">
-            <Button variant="outline" size="lg">
-              View All Courses
-            </Button>
-          </Link>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-6 text-center">
+      <PopularCoursesSection />
+      <section className="py-12 px-6 text-center">
         <h2 className="text-3xl md:text-4xl font-bold">
           Ready to start learning?
         </h2>
@@ -112,14 +73,12 @@ export default function LandingPage() {
           </Link>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="py-8 px-6 border-t text-sm text-muted-foreground text-center">
+      <footer className="py-4 px-6 border-t text-sm text-muted-foreground text-center">
         <p>
           &copy; {new Date().getFullYear()} Fahimul Islam. All rights reserved.
         </p>
       </footer>
-    </div>
+    </>
   );
 }
 

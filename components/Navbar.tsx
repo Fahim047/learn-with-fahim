@@ -66,14 +66,11 @@ export default function ProfessionalNavbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-        {/* === Left: Logo === */}
         <div className="flex items-center">
           <Link href="/" className="text-2xl font-bold text-primary-600">
-            Next.js
+            LWF
           </Link>
         </div>
-
-        {/* === Center: Desktop Navigation === */}
         <div className="hidden md:flex md:items-center">
           <NavigationMenu>
             <NavigationMenuList>
@@ -85,7 +82,6 @@ export default function ProfessionalNavbar() {
             </NavigationMenuList>
           </NavigationMenu>
         </div>
-        {/* === Right: Actions & Auth === */}
         <div className="flex items-center justify-end space-x-2 sm:space-x-4">
           <Button variant="ghost" size="icon" className="hidden md:inline-flex">
             <Search className="h-5 w-5 text-gray-600" />

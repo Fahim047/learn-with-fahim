@@ -1,18 +1,11 @@
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { getCourseBySlug } from "@/data/public/get-course";
-import { generateImageURL } from "@/utils";
+import Image from "next/image";
 import { notFound } from "next/navigation";
-import { tryCatch } from "@/lib/try-catch";
-import RichTextPreview from "@/components/rich-text-editor/tip-tap-preview";
-import EnrollNowButton from "@/components/courses/enroll-now-button";
+import { getCourseBySlug } from "@/data/public/get-course";
 import { isEnrolled } from "@/data/public/is-enrolled";
 import Link from "next/link";
+import EnrollNowButton from "@/components/courses/enroll-now-button";
+import CurriculumAccordion from "@/components/courses/curriculum-accordion";
+import { generateImageURL } from "@/utils";
 
 export default async function CoursePage({
   params,
@@ -20,43 +13,51 @@ export default async function CoursePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const { data: course, error } = await tryCatch(getCourseBySlug(slug));
-
-  if (error || !course) return notFound();
+  const course = await getCourseBySlug(slug);
+  if (!course) return notFound();
 
   const enrolled = await isEnrolled(course.id);
+  const imgURL = generateImageURL(course.fileKey);
 
   return (
-    <div className="max-w-4xl mx-auto py-10 space-y-8">
+    <div className="max-w-6xl mx-auto py-10 space-y-10">
       {/* Hero / Banner */}
-      <div className="relative w-full h-64 rounded-2xl overflow-hidden shadow">
+      <div className="relative w-full h-64 rounded-2xl overflow-hidden shadow-lg">
         {course.fileKey ? (
-          <img
-            src={generateImageURL(course.fileKey)}
+          <Image
+            src={imgURL}
             alt={course.title}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            priority
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xl font-semibold">
+          <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
             {course.title}
           </div>
         )}
       </div>
 
-      {/* Course Info */}
-      <Card className="rounded-2xl shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">{course.title}</CardTitle>
-          <CardDescription>By Fahimul Islam</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <RichTextPreview doc={JSON.parse(course.description)} />
+      {/* Main content: two columns */}
+      <div className="lg:grid lg:grid-cols-[2fr_1fr] gap-8">
+        {/* Left column — Curriculum */}
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Course Curriculum</h2>
+          <CurriculumAccordion course={course} enrolled={enrolled} />
+        </div>
 
-          <div className="mt-6">
+        {/* Right column — Sidebar Card */}
+        <div className="space-y-6">
+          <div className="sticky top-24 rounded-2xl shadow p-6 border">
+            <h1 className="text-xl font-bold">{course.title}</h1>
+            <p className="text-muted-foreground mt-2 mb-4">
+              {course.shortDescription ?? "No description available."}
+            </p>
+
             {enrolled ? (
               <Link
                 href={`/dashboard/courses/${course.slug}/overview`}
-                className="inline-flex items-center justify-center w-full bg-green-600 text-white font-medium py-2.5 rounded-xl hover:bg-green-700 transition"
+                className="w-full inline-flex justify-center items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
               >
                 Go to Course
               </Link>
@@ -64,8 +65,8 @@ export default async function CoursePage({
               <EnrollNowButton courseId={course.id} />
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

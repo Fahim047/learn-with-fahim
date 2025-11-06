@@ -1,5 +1,5 @@
 import db from "@/lib/db";
-import { chapters, courses } from "@/lib/db/schema";
+import { chapters, courses, lessons } from "@/lib/db/schema";
 import { eq, and, asc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 
@@ -9,9 +9,19 @@ export async function getCourseBySlug(slug: string) {
     with: {
       chapters: {
         orderBy: asc(chapters.order),
+        columns: {
+          id: true,
+          title: true,
+          order: true,
+        },
         with: {
           lessons: {
-            orderBy: asc(chapters.order),
+            orderBy: asc(lessons.order),
+            columns: {
+              id: true,
+              title: true,
+              order: true,
+            },
           },
         },
       },
