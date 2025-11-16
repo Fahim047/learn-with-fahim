@@ -4,8 +4,17 @@ import { useTransition } from "react";
 import { Button } from "../ui/button";
 import { enrollInCourse } from "@/actions/courses";
 import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export default function EnrollNowButton({ courseId }: { courseId: string }) {
+interface EnrollNowButtonProps {
+  courseId: string;
+  className?: string;
+}
+
+export default function EnrollNowButton({
+  courseId,
+  className,
+}: EnrollNowButtonProps) {
   const [isPending, startTransition] = useTransition();
   function handleEnroll() {
     startTransition(async () => {
@@ -16,7 +25,7 @@ export default function EnrollNowButton({ courseId }: { courseId: string }) {
     <>
       <Button
         size="lg"
-        className="w-full sm:w-auto"
+        className={cn("w-full", className)}
         onClick={handleEnroll}
         disabled={isPending}
       >

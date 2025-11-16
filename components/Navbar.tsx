@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Menu, Search, ChevronDown } from "lucide-react";
+import { Menu, ChevronDown } from "lucide-react";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import {
@@ -43,8 +43,8 @@ const NavLink = ({
         navigationMenuTriggerStyle(),
         "bg-transparent text-sm font-medium",
         isActive
-          ? "text-orange-600 underline underline-offset-4"
-          : "text-gray-200 hover:text-orange-600"
+          ? "text-primary underline underline-offset-4"
+          : "text-muted-foreground hover:text-primary"
       )}
     >
       <Link href={href}>{children}</Link>
@@ -52,7 +52,7 @@ const NavLink = ({
   );
 };
 
-export default function ProfessionalNavbar() {
+export default function Navbar() {
   const { data: session } = authClient.useSession();
   const router = useRouter();
   const pathname = usePathname();
@@ -83,12 +83,7 @@ export default function ProfessionalNavbar() {
           </NavigationMenu>
         </div>
         <div className="flex items-center justify-end space-x-2 sm:space-x-4">
-          <Button variant="ghost" size="icon" className="hidden md:inline-flex">
-            <Search className="h-5 w-5 text-gray-600" />
-            <span className="sr-only">Search</span>
-          </Button>
           <ThemeToggler />
-          {/* User Auth: Dropdown or Login Button */}
           {session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -116,12 +111,14 @@ export default function ProfessionalNavbar() {
                 <DropdownMenuItem onClick={() => router.push("/dashboard")}>
                   Dashboard
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push("/orders")}>
-                  My Orders
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push("/profile")}>
                   Profile Settings
                 </DropdownMenuItem>
+                {session?.user.role === "admin" && (
+                  <DropdownMenuItem onClick={() => router.push("/admin")}>
+                    Admin Panel
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
@@ -157,7 +154,7 @@ export default function ProfessionalNavbar() {
                     onClick={() => setSheetOpen(false)}
                     className="text-xl font-bold text-primary-600"
                   >
-                    Giftora
+                    LWF
                   </Link>
                 </div>
 
@@ -169,9 +166,8 @@ export default function ProfessionalNavbar() {
                       href={link.href}
                       onClick={() => setSheetOpen(false)}
                       className={cn(
-                        "rounded-md p-2 text-base font-medium text-gray-700 hover:bg-gray-100",
-                        pathname === link.href &&
-                          "bg-primary-50 text-primary-600"
+                        "rounded-md p-2 text-base font-medium text-muted-foreground hover:bg-muted",
+                        pathname === link.href && "text-primary"
                       )}
                     >
                       {link.label}

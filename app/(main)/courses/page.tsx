@@ -32,7 +32,7 @@ export default async function PublicCoursesPage() {
   }
 
   return (
-    <div className="mt-12">
+    <div className="mt-12 px-4">
       <div className="flex flex-col space-y-2 mb-10">
         <h1 className="text-2xl font-bold">Explore Courses</h1>
         <p className="text-muted-foreground max-w-2xl">

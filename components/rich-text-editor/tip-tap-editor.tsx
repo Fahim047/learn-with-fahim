@@ -20,7 +20,8 @@ export default function TipTapEditor({ field }: TipTapEditorProps) {
     content: field.value ? JSON.parse(field.value) : undefined, // initial load only
     editorProps: {
       attributes: {
-        class: "w-full min-h-[350px] p-4 focus:outline-none",
+        class:
+          "w-full min-h-[350px] p-4 focus:outline-none prose dark:prose-invert",
       },
     },
     onUpdate: ({ editor }) => {

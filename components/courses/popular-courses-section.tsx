@@ -54,7 +54,7 @@ export default async function PopularCoursesSection() {
                 href={`/courses/${course.slug}`}
                 className={buttonVariants({ className: "w-full mt-auto" })}
               >
-                View Course
+                View Details
               </Link>
             </CardContent>
           </Card>

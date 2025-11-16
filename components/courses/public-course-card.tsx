@@ -58,7 +58,7 @@ export function PublicCourseCard({
             className: "w-full",
           })}
         >
-          See Details
+          View Details
         </Link>
       </CardFooter>
     </Card>

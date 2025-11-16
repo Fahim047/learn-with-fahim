@@ -6,6 +6,8 @@ import Link from "next/link";
 import EnrollNowButton from "@/components/courses/enroll-now-button";
 import CurriculumAccordion from "@/components/courses/curriculum-accordion";
 import { generateImageURL } from "@/utils";
+import { ChartColumnIncreasing, ClockIcon, UsersRound } from "lucide-react";
+import RichTextPreview from "@/components/rich-text-editor/tip-tap-preview";
 
 export default async function CoursePage({
   params,
@@ -20,9 +22,9 @@ export default async function CoursePage({
   const imgURL = generateImageURL(course.fileKey);
 
   return (
-    <div className="max-w-6xl mx-auto py-10 space-y-10">
+    <div className="max-w-6xl mx-auto px-4 py-10 space-y-10">
       {/* Hero / Banner */}
-      <div className="relative w-full h-64 rounded-2xl overflow-hidden shadow-lg">
+      <div className="relative w-full h-96 rounded-2xl overflow-hidden shadow-lg">
         {course.fileKey ? (
           <Image
             src={imgURL}
@@ -39,11 +41,13 @@ export default async function CoursePage({
       </div>
 
       {/* Main content: two columns */}
-      <div className="lg:grid lg:grid-cols-[2fr_1fr] gap-8">
+      <div className="lg:grid lg:grid-cols-[2fr_1fr] gap-5">
         {/* Left column — Curriculum */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Course Curriculum</h2>
           <CurriculumAccordion course={course} enrolled={enrolled} />
+          <h2 className="text-2xl font-bold mt-8 mb-4">About the Course</h2>
+          <RichTextPreview doc={JSON.parse(course.description)} />
         </div>
 
         {/* Right column — Sidebar Card */}
@@ -53,6 +57,35 @@ export default async function CoursePage({
             <p className="text-muted-foreground mt-2 mb-4">
               {course.shortDescription ?? "No description available."}
             </p>
+            <div className="space-y-4 mb-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <ChartColumnIncreasing size={20} />
+                  <span className="text-muted-foreground text-sm">
+                    Difficulty Level
+                  </span>
+                </div>
+                <span className="text-primary text-sm">Advanced</span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <ClockIcon size={20} />
+                  <span className="text-muted-foreground text-sm">
+                    Duration
+                  </span>
+                </div>
+                <span className="text-primary text-sm">20 hours</span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <UsersRound size={20} />
+                  <span className="text-muted-foreground text-sm">
+                    Total Students
+                  </span>
+                </div>
+                <span className="text-primary text-sm">20</span>
+              </div>
+            </div>
 
             {enrolled ? (
               <Link
@@ -62,7 +95,10 @@ export default async function CoursePage({
                 Go to Course
               </Link>
             ) : (
-              <EnrollNowButton courseId={course.id} />
+              <EnrollNowButton
+                courseId={course.id}
+                className="w-full cursor-pointer"
+              />
             )}
           </div>
         </div>
