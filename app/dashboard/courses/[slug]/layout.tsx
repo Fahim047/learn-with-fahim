@@ -9,7 +9,7 @@ export default async function CourseLayout({
   children,
 }: {
   children: React.ReactNode;
-  params: Promise<{ slug: string; lessonId: string }>;
+  params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
   const { data: courseSidebarData, error } = await tryCatch(
