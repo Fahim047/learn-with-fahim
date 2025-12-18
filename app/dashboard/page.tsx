@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
 import { ErrorState } from "@/components/shared/error-state";
+import { buttonVariants } from "@/components/ui/button";
 
 export default async function DashboardPage() {
   const { data: courses, error } = await tryCatch(getEnrolledCourses());
@@ -27,7 +28,14 @@ export default async function DashboardPage() {
           icon={<GraduationCap className="w-10 h-10 text-muted-foreground" />}
           title="You’re not enrolled in any courses yet"
           description="Start your learning journey by enrolling in your first course."
-          action={<Link href="/courses">Browse Courses</Link>}
+          action={
+            <Link
+              href="/courses"
+              className={buttonVariants({ variant: "outline" })}
+            >
+              Browse Courses
+            </Link>
+          }
         />
       </div>
     );

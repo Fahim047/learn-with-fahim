@@ -3,7 +3,7 @@ import { tryCatch } from "@/lib/try-catch";
 import { BookOpen } from "lucide-react";
 import { PublicCourseCard } from "@/components/courses/public-course-card";
 import { EmptyState } from "@/components/shared/empty-state";
-
+export const dynamic = "force-dynamic";
 export default async function PublicCoursesPage() {
   const { data: courses, error } = await tryCatch(getAllCourses());
 

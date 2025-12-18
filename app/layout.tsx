@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/components/providers/auth-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,9 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Next.js App With Better-Auth Starter Kit",
-  description:
-    "A starter kit for Next.js App Router with Tailwind CSS, Shadcn, Better Auth, Postgres, Drizzle ORM and more.",
+  title: "Learn With Fahim",
+  description: "An online learning management system",
 };
 
 export default async function RootLayout({
@@ -36,7 +36,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <AuthProvider initialSession={null}>{children}</AuthProvider>
         </ThemeProvider>
         <Toaster richColors />
       </body>
